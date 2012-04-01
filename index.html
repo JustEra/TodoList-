@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mon site TODO List</title>
+        <meta charset="windows-1252" >
+        <script src="http://code.jquery.com/jquery-latest.pack.js"></script>
+        <script src="http://jqueryui.com/jquery-1.7.1.js"></script>
+        <script src="http://jqueryui.com/external/jquery.bgiframe-2.1.2.js"></script>
+        <script src="http://jqueryui.com/ui/jquery.ui.core.js"></script>
+        <script src="http://jqueryui.com/ui/jquery.ui.widget.js"></script>
+        <script src="http://jqueryui.com/ui/jquery.ui.mouse.js"></script>
+        <script src="http://jqueryui.com/ui/jquery.ui.button.js"></script>
+        <script src="http://jqueryui.com/ui/jquery.ui.draggable.js"></script>
+        <script src="http://jqueryui.com/ui/jquery.ui.position.js"></script>
+        <script src="http://jqueryui.com/ui/jquery.ui.resizable.js"></script>
+        <script src="http://jqueryui.com/ui/jquery.ui.dialog.js"></script>
+        <script src="http://jqueryui.com/ui/jquery.ui.datepicker.js"></script>
+        <script src="jquery.livequery.js"></script>
+        <link rel="stylesheet" href="http://jqueryui.com/demos/demos.css">
+        <link rel="stylesheet" href="http://jqueryui.com/themes/base/jquery.ui.all.css">
+        <link href="style.css" rel="stylesheet">
+        <script>
+
+            $(document).ready(function(){
+                getAllTodo();
+                addCroix();
+                $(".croix").livequery('click', (function(){
+                    if(confirm("Voulez vous supprimer ce ToDo ?")){
+                        var id = $(this).parent().attr("id");
+                        suppresionTodo(id);
+                        $(this).parent().remove();
+                    }
+                }));
+            });
+
+            function getAllTodo()
+            {
+                for(item in localStorage){
+                    if(item.substr(0,6) == "postit"){
+                        var id = 0;
+                        id = localStorage.getItem(item);
+                        $( "section" ).append( '<div id="'+id +'" class="post-it">' +
+                            '<div class="croix"></div>' +
+                            ' <div class="titre">' + localStorage.getItem('titre'+id)  +'</div>' +
+                            '<div class="contenue">' + localStorage.getItem('descr'+id) + '</div>' +
+                            ' <div class="date">'+ localStorage.getItem('date'+id) + '</div>' +
+                            '</div>' );
+                    }
+                }
+            }
+            function postIdNum(){
+                var id = 0;
+                while(localStorage.getItem('postit'+id) != null)
+                {
+                    id++;
+                }
+                return id;
+            }
+            function suppresionTodo(id)
+            {
+                localStorage.removeItem("postit"+id);
+                localStorage.removeItem("titre"+id);
+                localStorage.removeItem("descr"+id);
+                localStorage.removeItem("date"+id);
+            }
+            function addCroix() {
+                $('.croix').each(function(){
+                    $(this).css('opacity', 0);
+                    $(this).css('display', 'block');
+                });
+                $('.post-it').hover(function(){
+                    $(this).children('.croix').stop().fadeTo(500, 0.7);
+                },function(){
+                    $(this).children('.croix').stop().fadeTo(500, 0);
+                });
+            };
+            $(function() {
+                $( "#dialog:ui-dialog" ).dialog( "destroy" );
+                $( "#dialog-form" ).dialog({
+                    autoOpen: false,
+                    height: 300,
+                    width: 350,
+                    modal: true,
+                    buttons: {
+                        "Add a todo": function() {
+                            if($( "#todo" ).val() != "" && $( "#description").val() != "" & $( "#datepicker").val() != "" )
+                            {
+                                var id = postIdNum() ;
+                                $( "section" ).append( '<div id="'+id +'" class="post-it">' +
+                                    '<div class="croix"></div>' +
+                                    ' <div class="titre">' + $( "#todo" ).val()  +'</div>' +
+                                    '<div class="contenue">' + $( "#description").val() + '</div>' +
+                                    ' <div class="date">'+ $( "#datepicker").val() + '</div>' +
+                                    '</div>' );
+                                addCroix();
+                                localStorage.setItem('postit'+id, id);
+                                localStorage.setItem('titre'+id, $( "#todo" ).val());
+                                localStorage.setItem('descr'+id, $( "#description").val());
+                                localStorage.setItem('date'+id,  $( "#datepicker").val());
+
+                                $( this ).dialog( "close" );
+                            }
+                        },
+                        Cancel: function() {
+                            $( this ).dialog( "close" );
+                        }
+                    },
+                    close: function() {
+                    }
+                });
+                $( "#create-PostIt" )
+                .button()
+                .click(function() {
+                    $( "#dialog-form" ).dialog( "open" );
+                });
+                $(function() {
+                    $( "#datepicker" ).datepicker({dateFormat:'dd-mm-yy'});
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <header>
+            <h1>Mon TODO List</h1>
+        </header>
+        <nav>
+            <ul>
+                <li><button id="create-PostIt">Add a Todo</button></li>
+            </ul>
+        </nav>
+        <div>
+            <section>
+            </section>
+        </div>
+        <div id="dialog-form" title="Create new todo">
+            <p class="validateTips">All form fields are required.</p>
+            <form>
+                <fieldset>
+                    <label for="todo">Todo Name :</label>
+                    <input type="text" name="todo" id="todo" class="text ui-widget-content ui-corner-all" /><br /><br />
+                    <label for="description">Description :</label>
+                    <textarea  name="description" id="description" cols="26" rows="5"></textarea><br />
+                    <label for="datepicker">Dead Line :</label>
+                    <input type="text" name="date" id="datepicker" value="" class="text ui-widget-content ui-corner-all" /><br />
+                    <input type="reset" value="Reset values" />
+                </fieldset>
+            </form>
+
+        </div>
+        <footer>
+            Créer par Anthony Dubuissez
+        </footer>
+    </body>
+</html>
